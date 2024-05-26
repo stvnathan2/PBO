@@ -1,4 +1,3 @@
-user,jumlah,jenis,kategori,tanggal,deskripsi,metode_pembayaran,asal_dana
 adi,500000.00,pemasukan,gaji,2024-05-01,Gaji bulanan dari perusahaan,transfer bank,rekening bank
 adi,150000.00,pengeluaran,belanja,2024-05-02,Belanja bulanan di supermarket,kartu kredit,rekening bank
 adi,75000.00,pengeluaran,hiburan,2024-05-03,Menonton film di bioskop,tunai,dompet
