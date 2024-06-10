@@ -9,11 +9,12 @@ import java.util.Properties;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class ExpenseFormPanel extends JPanel {
     private JTextField amountField;
     private JComboBox<String> typeField;
-    private JTextField categoryField;
+    private JComboBox<String> categoryField; 
     private JDatePickerImpl datePicker;
     private JTextField descriptionField;
     private JComboBox<String> paymentMethodField;
@@ -22,21 +23,26 @@ public class ExpenseFormPanel extends JPanel {
 
     public ExpenseFormPanel(String username) {
         this.username = username;
-        setLayout(new GridLayout(8, 2));
+        setLayout(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        add(new JLabel("Amount:"));
+        JPanel formPanel = new JPanel(new GridLayout(8, 2, 10, 10));
+
+        formPanel.add(new JLabel("Amount:"));
         amountField = new JTextField();
-        add(amountField);
+        formPanel.add(amountField);
 
-        add(new JLabel("Type:"));
-        typeField = new JComboBox<>(new String[]{"pemasukan", "pengeluaran"});
-        add(typeField);
+        formPanel.add(new JLabel("Type:"));
+        typeField = new JComboBox<>(new String[]{"Pemasukan", "Pengeluaran"});
+        typeField.addActionListener(new TypeSelectionListener());
+        formPanel.add(typeField);
 
-        add(new JLabel("Category:"));
-        categoryField = new JTextField();
-        add(categoryField);
+        formPanel.add(new JLabel("Category:"));
+        categoryField = new JComboBox<>();
+        categoryField.addItem("Gaji");
+        formPanel.add(categoryField);
 
-        add(new JLabel("Date:"));
+        formPanel.add(new JLabel("Date:"));
         UtilDateModel model = new UtilDateModel();
         Properties properties = new Properties();
         properties.put("text.today", "Today");
@@ -44,44 +50,50 @@ public class ExpenseFormPanel extends JPanel {
         properties.put("text.year", "Year");
         JDatePanelImpl datePanel = new JDatePanelImpl(model, properties);
         datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-        add(datePicker);
+        formPanel.add(datePicker);
 
-        add(new JLabel("Description:"));
+        formPanel.add(new JLabel("Description:"));
         descriptionField = new JTextField();
-        add(descriptionField);
+        formPanel.add(descriptionField);
 
-        add(new JLabel("Payment Method:"));
-        paymentMethodField = new JComboBox<>(new String[]{"cash", "digital"});
-        add(paymentMethodField);
+        formPanel.add(new JLabel("Payment Method:"));
+        paymentMethodField = new JComboBox<>(new String[]{"Cash", "Digital"});
+        formPanel.add(paymentMethodField);
 
-        add(new JLabel("Account:"));
+        formPanel.add(new JLabel("Account:"));
         accountField = new JTextField();
-        add(accountField);
+        formPanel.add(accountField);
 
-        JButton addButton = new JButton("Add Expense");
+        add(formPanel, BorderLayout.CENTER);
+
+        JButton addButton = new JButton("Masukkan Data");
         addButton.addActionListener(new AddExpenseAction());
-        add(addButton);
+        add(addButton, BorderLayout.SOUTH);
     }
 
     private class AddExpenseAction implements ActionListener {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        double amount = Double.parseDouble(amountField.getText());
-        String type = (String) typeField.getSelectedItem();
-        String category = categoryField.getText();
-        // Ambil tanggal dari JDatePicker dan ubah menjadi tipe java.sql.Date
-        Date date = (Date) datePicker.getModel().getValue();
-        String description = descriptionField.getText();
-        String paymentMethod = (String) paymentMethodField.getSelectedItem();
-        String account = accountField.getText();
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                double amount = Double.parseDouble(amountField.getText());
+                String type = (String) typeField.getSelectedItem();
+                String category = (String) categoryField.getSelectedItem();
+                java.util.Date dateUtil = (java.util.Date) datePicker.getModel().getValue();
+                java.sql.Date date = new java.sql.Date(dateUtil.getTime());
+                String description = descriptionField.getText();
+                String paymentMethod = (String) paymentMethodField.getSelectedItem();
+                String account = accountField.getText();
 
-        Expense expense = new Expense(0, username, amount, type, category, date, description, paymentMethod, account);
-        ExpenseManager.getInstance().addExpense(expense);
+                Expense expense = new Expense(username, amount, type, category, date, description, paymentMethod, account);
+                ExpenseManager.getInstance().addExpense(expense);
 
-        JOptionPane.showMessageDialog(ExpenseFormPanel.this, "Input telah ditambahkan", "Success", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(ExpenseFormPanel.this, "Input has been added", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(ExpenseFormPanel.this, "An error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
-}
-
 
     private class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
         private final String datePattern = "yyyy-MM-dd";
@@ -100,5 +112,27 @@ public class ExpenseFormPanel extends JPanel {
             }
             return "";
         }
+    }
+
+    private class TypeSelectionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String selectedType = (String) typeField.getSelectedItem();
+            updateCategoryOptions(selectedType);
+        }
+    }
+
+    private void updateCategoryOptions(String selectedType) {
+        if (selectedType.equals("Pengeluaran")) {
+            categoryField.removeAllItems();
+            categoryField.addItem("Hiburan");
+            categoryField.addItem("Transportasi");
+            categoryField.addItem("Makan");
+            categoryField.addItem("Kesehatan");
+            categoryField.addItem("Belanja");
+        } else if (selectedType.equals("Pemasukan")) {
+            categoryField.removeAllItems();
+            categoryField.addItem("Gaji");
+        } 
     }
 }

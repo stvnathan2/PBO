@@ -25,6 +25,8 @@ public class MonthlySummary extends JPanel {
     private JPanel chartPanel;
     private JPanel summaryPanel;
     private ChartPanel chartPanelComponent;
+    private int currentMonth;
+    private int currentYear;
 
     public MonthlySummary(String username) {
         setLayout(new BorderLayout());
@@ -33,45 +35,33 @@ public class MonthlySummary extends JPanel {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         add(panel);
 
-        JPanel selectionPanel = new JPanel();
-        selectionPanel.setLayout(new BoxLayout(selectionPanel, BoxLayout.Y_AXIS));
-        selectionPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+        JPanel selectionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         JLabel monthLabel = new JLabel("Bulan: ");
         JComboBox<String> monthComboBox = new JComboBox<>(getMonths());
         JLabel yearLabel = new JLabel("Tahun: ");
         JComboBox<String> yearComboBox = new JComboBox<>(getYears());
-
-        monthComboBox.setMaximumSize(new Dimension(100, monthComboBox.getPreferredSize().height));
-        yearComboBox.setMaximumSize(new Dimension(100, yearComboBox.getPreferredSize().height));
-
         JButton showButton = new JButton("Tampilkan");
-        showButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         selectionPanel.add(monthLabel);
         selectionPanel.add(monthComboBox);
-        selectionPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         selectionPanel.add(yearLabel);
         selectionPanel.add(yearComboBox);
-        selectionPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         selectionPanel.add(showButton);
-        selectionPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         panel.add(selectionPanel);
 
-        chartPanel = new JPanel();
+        chartPanel = new JPanel(new BorderLayout());
         panel.add(chartPanel);
 
         dataset = new DefaultPieDataset();
         JFreeChart chart = ChartFactory.createPieChart("", dataset, true, true, false);
         chartPanelComponent = new ChartPanel(chart);
-        chartPanelComponent.setPreferredSize(new Dimension(1000, 500));
-        chartPanel.add(chartPanelComponent);
-        chartPanel.setVisible(false);
+        chartPanelComponent.setPreferredSize(new Dimension(500, 400));
+        chartPanel.add(chartPanelComponent, BorderLayout.CENTER);
 
-        summaryPanel = new JPanel(new GridLayout(0, 3));
-        summaryPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        summaryPanel = new JPanel(new GridLayout(0, 3, 10, 10));
+        panel.add(summaryPanel);
 
-        Font font = new Font("Arial", Font.PLAIN, 30);
+        Font font = new Font("Arial", Font.PLAIN, 18);
 
         totalIncomeLabel = createLabel("Pemasukan: ", font);
         totalIncomeAmountLabel = createLabel("", font);
@@ -93,8 +83,11 @@ public class MonthlySummary extends JPanel {
         addToSummaryPanel(summaryPanel, highestExpenseCategoryLabel, highestExpenseCategoryAmountLabel);
         addToSummaryPanel(summaryPanel, lowestExpenseCategoryLabel, lowestExpenseCategoryAmountLabel);
 
-        panel.add(summaryPanel);
-        summaryPanel.setVisible(false);
+        java.time.LocalDate now = java.time.LocalDate.now();
+        currentMonth = now.getMonthValue();
+        currentYear = now.getYear();
+        monthComboBox.setSelectedIndex(currentMonth - 1);
+        yearComboBox.setSelectedItem(String.valueOf(currentYear));
 
         showButton.addActionListener(e -> {
             String selectedMonth = (String) monthComboBox.getSelectedItem();
@@ -129,7 +122,6 @@ public class MonthlySummary extends JPanel {
         subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.Y_AXIS));
         subPanel.add(label1);
         subPanel.add(label2);
-        subPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         panel.add(subPanel);
     }
 

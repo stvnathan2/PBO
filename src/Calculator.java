@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Calculator extends JFrame implements ActionListener {
+public class Calculator extends JPanel implements ActionListener {
     private JTextField display;
     private JPanel panel;
     private StringBuilder currentInput;
@@ -13,10 +13,8 @@ public class Calculator extends JFrame implements ActionListener {
     private boolean operatorSelected;
 
     public Calculator() {
-        setTitle("Calculator");
-        setSize(400, 500);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+        setBackground(Color.WHITE);
 
         currentInput = new StringBuilder();
         operatorSelected = false;
@@ -24,11 +22,14 @@ public class Calculator extends JFrame implements ActionListener {
         display = new JTextField();
         display.setHorizontalAlignment(JTextField.RIGHT);
         display.setEditable(false);
-        display.setFont(new Font("Arial", Font.BOLD, 24));
-        add(display, BorderLayout.NORTH);
+        display.setFont(new Font("Arial", Font.BOLD, 36));
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(display, BorderLayout.NORTH);
 
         panel = new JPanel();
         panel.setLayout(new GridLayout(4, 4, 10, 10));
+        panel.setBackground(Color.WHITE);
 
         String[] buttons = {
             "7", "8", "9", "/",
@@ -40,11 +41,14 @@ public class Calculator extends JFrame implements ActionListener {
         for (String text : buttons) {
             JButton button = new JButton(text);
             button.setFont(new Font("Arial", Font.BOLD, 24));
+            button.setBackground(Color.LIGHT_GRAY);
             button.addActionListener(this);
             panel.add(button);
         }
 
-        add(panel, BorderLayout.CENTER);
+        mainPanel.add(panel, BorderLayout.CENTER);
+
+        add(mainPanel, BorderLayout.CENTER);
     }
 
     @Override
@@ -89,12 +93,5 @@ public class Calculator extends JFrame implements ActionListener {
             default:
                 return 0;
         }
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Calculator calculator = new Calculator();
-            calculator.setVisible(true);
-        });
     }
 }
