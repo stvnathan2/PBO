@@ -40,15 +40,18 @@ public class ExpenseManager {
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            conn.setAutoCommit(false);
             pstmt.setString(1, expense.getUsername());
             pstmt.setDouble(2, expense.getAmount());
             pstmt.setString(3, expense.getType());
             pstmt.setString(4, expense.getCategory());
-            pstmt.setString(5, expense.getDate());
+            pstmt.setDate(5, expense.getDate());
             pstmt.setString(6, expense.getDescription());
             pstmt.setString(7, expense.getPaymentMethod());
             pstmt.setString(8, expense.getAccount());
-            pstmt.executeUpdate();
+            int rowsAffected = pstmt.executeUpdate();
+            System.out.println("Rows affected: " + rowsAffected);
+            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -65,12 +68,11 @@ public class ExpenseManager {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 Expense expense = new Expense(
-                    rs.getInt("id"),
                     rs.getString("username"),
                     rs.getDouble("amount"),
                     rs.getString("type"),
                     rs.getString("category"),
-                    rs.getString("date"),
+                    rs.getDate("date"),
                     rs.getString("description"),
                     rs.getString("payment_method"),
                     rs.getString("account")

@@ -9,6 +9,7 @@ import java.util.Properties;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class ExpenseFormPanel extends JPanel {
     private JTextField amountField;
@@ -64,24 +65,28 @@ public class ExpenseFormPanel extends JPanel {
     }
 
     private class AddExpenseAction implements ActionListener {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        double amount = Double.parseDouble(amountField.getText());
-        String type = (String) typeField.getSelectedItem();
-        String category = categoryField.getText();
-        // Ambil tanggal dari JDatePicker dan ubah menjadi tipe java.sql.Date
-        Date date = (Date) datePicker.getModel().getValue();
-        String description = descriptionField.getText();
-        String paymentMethod = (String) paymentMethodField.getSelectedItem();
-        String account = accountField.getText();
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                double amount = Double.parseDouble(amountField.getText());
+                String type = (String) typeField.getSelectedItem();
+                String category = categoryField.getText();
+                java.util.Date dateUtil = (java.util.Date) datePicker.getModel().getValue();
+                java.sql.Date date = new java.sql.Date(dateUtil.getTime());
+                String description = descriptionField.getText();
+                String paymentMethod = (String) paymentMethodField.getSelectedItem();
+                String account = accountField.getText();
 
-        Expense expense = new Expense(0, username, amount, type, category, date, description, paymentMethod, account);
-        ExpenseManager.getInstance().addExpense(expense);
+                Expense expense = new Expense(username, amount, type, category, date, description, paymentMethod, account);
+                ExpenseManager.getInstance().addExpense(expense);
 
-        JOptionPane.showMessageDialog(ExpenseFormPanel.this, "Input telah ditambahkan", "Success", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(ExpenseFormPanel.this, "Input telah ditambahkan", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(ExpenseFormPanel.this, "Terjadi kesalahan: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
-}
-
 
     private class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
         private final String datePattern = "yyyy-MM-dd";

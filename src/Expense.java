@@ -4,13 +4,12 @@ public class Expense {
     private double amount;
     private String type;
     private String category;
-    private String date;
+    private java.sql.Date date;
     private String description;
     private String paymentMethod;
     private String account;
 
-    public Expense(int id, String username, double amount, String type, String category, String date, String description, String paymentMethod, String account) {
-        this.id = id;
+    public Expense(String username, double amount, String type, String category, java.sql.Date date, String description, String paymentMethod, String account) {
         this.username = username;
         this.amount = amount;
         this.type = type;
@@ -21,6 +20,7 @@ public class Expense {
         this.account = account;
     }
 
+    // Getters and setters for all fields except 'id'
     public int getId() {
         return id;
     }
@@ -61,11 +61,11 @@ public class Expense {
         this.category = category;
     }
 
-    public String getDate() {
+    public java.sql.Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(java.sql.Date date) {
         this.date = date;
     }
 
