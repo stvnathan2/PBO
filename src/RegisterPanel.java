@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class RegisterPanel extends JPanel {
+class RegisterPanel extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JFrame parentFrame;
@@ -25,7 +25,10 @@ public class RegisterPanel extends JPanel {
         add(registerButton);
 
         JButton backButton = new JButton("Back");
-        backButton.addActionListener(e -> parentFrame.setContentPane(new LoginPanel(parentFrame)));
+        backButton.addActionListener(e -> {
+            parentFrame.setContentPane(new LoginPanel(parentFrame));
+            parentFrame.validate();
+        });
         add(backButton);
     }
 
@@ -34,7 +37,14 @@ public class RegisterPanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
-            if (UserManager.getInstance().addUser(new User(username, password))) {
+
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(parentFrame, "Username and password cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            UserManager userManager = UserManager.getInstance();
+            if (userManager.addUser(new User(username, password))) {
                 JOptionPane.showMessageDialog(parentFrame, "Registration successful", "Success", JOptionPane.INFORMATION_MESSAGE);
                 parentFrame.setContentPane(new LoginPanel(parentFrame));
                 parentFrame.validate();
