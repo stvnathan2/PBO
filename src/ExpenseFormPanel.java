@@ -1,16 +1,23 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.*;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+import java.util.Properties;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class ExpenseFormPanel extends JPanel {
     private JTextField amountField;
-    private JTextField typeField;
+    private JComboBox<String> typeField;
     private JTextField categoryField;
-    private JTextField dateField;
+    private JDatePickerImpl datePicker;
     private JTextField descriptionField;
-    private JTextField paymentMethodField;
-    private JTextField sourceField;
+    private JComboBox<String> paymentMethodField;
+    private JTextField accountField;
     private String username;
 
     public ExpenseFormPanel(String username) {
@@ -22,7 +29,7 @@ public class ExpenseFormPanel extends JPanel {
         add(amountField);
 
         add(new JLabel("Type:"));
-        typeField = new JTextField();
+        typeField = new JComboBox<>(new String[]{"pemasukan", "pengeluaran"});
         add(typeField);
 
         add(new JLabel("Category:"));
@@ -30,20 +37,26 @@ public class ExpenseFormPanel extends JPanel {
         add(categoryField);
 
         add(new JLabel("Date:"));
-        dateField = new JTextField();
-        add(dateField);
+        UtilDateModel model = new UtilDateModel();
+        Properties properties = new Properties();
+        properties.put("text.today", "Today");
+        properties.put("text.month", "Month");
+        properties.put("text.year", "Year");
+        JDatePanelImpl datePanel = new JDatePanelImpl(model, properties);
+        datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+        add(datePicker);
 
         add(new JLabel("Description:"));
         descriptionField = new JTextField();
         add(descriptionField);
 
         add(new JLabel("Payment Method:"));
-        paymentMethodField = new JTextField();
+        paymentMethodField = new JComboBox<>(new String[]{"cash", "digital"});
         add(paymentMethodField);
 
-        add(new JLabel("Source:"));
-        sourceField = new JTextField();
-        add(sourceField);
+        add(new JLabel("Account:"));
+        accountField = new JTextField();
+        add(accountField);
 
         JButton addButton = new JButton("Add Expense");
         addButton.addActionListener(new AddExpenseAction());
@@ -51,20 +64,41 @@ public class ExpenseFormPanel extends JPanel {
     }
 
     private class AddExpenseAction implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        double amount = Double.parseDouble(amountField.getText());
+        String type = (String) typeField.getSelectedItem();
+        String category = categoryField.getText();
+        // Ambil tanggal dari JDatePicker dan ubah menjadi tipe java.sql.Date
+        Date date = (Date) datePicker.getModel().getValue();
+        String description = descriptionField.getText();
+        String paymentMethod = (String) paymentMethodField.getSelectedItem();
+        String account = accountField.getText();
+
+        Expense expense = new Expense(0, username, amount, type, category, date, description, paymentMethod, account);
+        ExpenseManager.getInstance().addExpense(expense);
+
+        JOptionPane.showMessageDialog(ExpenseFormPanel.this, "Input telah ditambahkan", "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+}
+
+
+    private class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+        private final String datePattern = "yyyy-MM-dd";
+        private final SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
+
         @Override
-        public void actionPerformed(ActionEvent e) {
-            double amount = Double.parseDouble(amountField.getText());
-            String type = typeField.getText();
-            String category = categoryField.getText();
-            String date = dateField.getText();
-            String description = descriptionField.getText();
-            String paymentMethod = paymentMethodField.getText();
-            String source = sourceField.getText();
+        public Object stringToValue(String text) throws ParseException {
+            return dateFormatter.parseObject(text);
+        }
 
-            Expense expense = new Expense(0, username, amount, type, category, date, description, paymentMethod, source);
-            ExpenseManager.getInstance().addExpense(expense);
-
-            JOptionPane.showMessageDialog(ExpenseFormPanel.this, "Expense added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+        @Override
+        public String valueToString(Object value) throws ParseException {
+            if (value != null) {
+                Calendar cal = (Calendar) value;
+                return dateFormatter.format(cal.getTime());
+            }
+            return "";
         }
     }
 }
