@@ -1,7 +1,7 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.*;
 
 public class ExpenseFormPanel extends JPanel {
     private JTextField amountField;
@@ -10,7 +10,7 @@ public class ExpenseFormPanel extends JPanel {
     private JTextField dateField;
     private JTextField descriptionField;
     private JTextField paymentMethodField;
-    private JTextField sourceField;
+    private JTextField accountField;
     private String username;
 
     public ExpenseFormPanel(String username) {
@@ -41,9 +41,9 @@ public class ExpenseFormPanel extends JPanel {
         paymentMethodField = new JTextField();
         add(paymentMethodField);
 
-        add(new JLabel("Source:"));
-        sourceField = new JTextField();
-        add(sourceField);
+        add(new JLabel("Account:"));
+        accountField = new JTextField();
+        add(accountField);
 
         JButton addButton = new JButton("Add Expense");
         addButton.addActionListener(new AddExpenseAction());
@@ -59,12 +59,12 @@ public class ExpenseFormPanel extends JPanel {
             String date = dateField.getText();
             String description = descriptionField.getText();
             String paymentMethod = paymentMethodField.getText();
-            String source = sourceField.getText();
+            String account = accountField.getText();
 
-            Expense expense = new Expense(0, username, amount, type, category, date, description, paymentMethod, source);
+            Expense expense = new Expense(0, username, amount, type, category, date, description, paymentMethod, account);
             ExpenseManager.getInstance().addExpense(expense);
 
-            JOptionPane.showMessageDialog(ExpenseFormPanel.this, "Expense added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(ExpenseFormPanel.this, "Input telah ditambahkan", "Success", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 }

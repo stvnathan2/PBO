@@ -7,17 +7,21 @@ public class ExpenseManager {
 
     private ExpenseManager() {
         try (Connection conn = DatabaseUtils.getConnection();
-            Statement stmt = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS daily_expenses (" +
-                         "id INTEGER PRIMARY KEY AUTO_INCREMENT," +
-                         "username TEXT NOT NULL," +
-                         "amount REAL NOT NULL," +
-                         "type TEXT NOT NULL," +
-                         "category TEXT NOT NULL," +
-                         "date TEXT NOT NULL," +
+                         "id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT," +
+                         "username VARCHAR(20) NOT NULL," +
+                         "amount DECIMAL(10,2) NOT NULL," +
+                         "type VARCHAR(15) NOT NULL," +
+                         "category VARCHAR(50) NOT NULL," +
+                         "date DATE NOT NULL," +
                          "description TEXT," +
-                         "payment_method TEXT," +
-                         "account TEXT)";
+                         "payment_method VARCHAR(50)," +
+                         "account VARCHAR(50)," +
+                         "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                         "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," +
+                         "CONSTRAINT daily_expenses_chk_1 CHECK (type IN ('pemasukan', 'pengeluaran'))" +
+                         ")";
             stmt.execute(sql);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -32,7 +36,22 @@ public class ExpenseManager {
     }
 
     public void addExpense(Expense expense) {
-        // Kode tambahan untuk menambahkan data transaksi ke database
+        String sql = "INSERT INTO daily_expenses (username, amount, type, category, date, description, payment_method, account) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DatabaseUtils.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, expense.getUsername());
+            pstmt.setDouble(2, expense.getAmount());
+            pstmt.setString(3, expense.getType());
+            pstmt.setString(4, expense.getCategory());
+            pstmt.setString(5, expense.getDate());
+            pstmt.setString(6, expense.getDescription());
+            pstmt.setString(7, expense.getPaymentMethod());
+            pstmt.setString(8, expense.getAccount());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public List<Expense> getExpensesByUserAndMonth(String username, int month, int year) {
@@ -63,5 +82,4 @@ public class ExpenseManager {
         }
         return expenses;
     }
-
 }
