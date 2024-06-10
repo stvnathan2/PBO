@@ -11,7 +11,7 @@ public class DashboardPanel extends JPanel {
         setLayout(new BorderLayout());
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Calendar", new CalendarPanel(username));
+        tabbedPane.addTab("Kalender", new CalendarPanel(username));
         tabbedPane.addTab("Add Expense", new ExpenseFormPanel(username));
         tabbedPane.addTab("Summary", new MonthlySummary(username));
 

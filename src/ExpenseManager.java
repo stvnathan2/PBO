@@ -32,29 +32,17 @@ public class ExpenseManager {
     }
 
     public void addExpense(Expense expense) {
-        String sql = "INSERT INTO daily_expenses(username, amount, type, category, date, description, payment_method, account) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DatabaseUtils.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, expense.getUsername());
-            pstmt.setDouble(2, expense.getAmount());
-            pstmt.setString(3, expense.getType());
-            pstmt.setString(4, expense.getCategory());
-            pstmt.setString(5, expense.getDate());
-            pstmt.setString(6, expense.getDescription());
-            pstmt.setString(7, expense.getPaymentMethod());
-            pstmt.setString(8, expense.getAccount());
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        // Kode tambahan untuk menambahkan data transaksi ke database
     }
 
-    public List<Expense> getExpensesByUser(String username) {
-        List<Expense> daily_expenses = new ArrayList<>();
-        String sql = "SELECT * FROM daily_expenses WHERE username = ?";
+    public List<Expense> getExpensesByUserAndMonth(String username, int month, int year) {
+        List<Expense> expenses = new ArrayList<>();
+        String sql = "SELECT * FROM daily_expenses WHERE username = ? AND MONTH(date) = ? AND YEAR(date) = ?";
         try (Connection conn = DatabaseUtils.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
+            pstmt.setInt(2, month);
+            pstmt.setInt(3, year);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 Expense expense = new Expense(
@@ -68,40 +56,12 @@ public class ExpenseManager {
                     rs.getString("payment_method"),
                     rs.getString("account")
                 );
-                daily_expenses.add(expense);
+                expenses.add(expense);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return daily_expenses;
+        return expenses;
     }
 
-    public void updateExpense(Expense expense) {
-        String sql = "UPDATE daily_expenses SET amount = ?, type = ?, category = ?, date = ?, description = ?, payment_method = ?, account = ? WHERE id = ?";
-        try (Connection conn = DatabaseUtils.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setDouble(1, expense.getAmount());
-            pstmt.setString(2, expense.getType());
-            pstmt.setString(3, expense.getCategory());
-            pstmt.setString(4, expense.getDate());
-            pstmt.setString(5, expense.getDescription());
-            pstmt.setString(6, expense.getPaymentMethod());
-            pstmt.setString(7, expense.getAccount());
-            pstmt.setInt(8, expense.getId());
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void deleteExpense(int expenseId) {
-        String sql = "DELETE FROM daily_expenses WHERE id = ?";
-        try (Connection conn = DatabaseUtils.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, expenseId);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 }
