@@ -20,6 +20,7 @@ public class Expense {
         this.account = account;
     }
 
+    // Getters and setters for all fields except 'id'
     public int getId() {
         return id;
     }
